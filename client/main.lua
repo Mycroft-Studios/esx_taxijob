@@ -194,12 +194,18 @@ function OpenVehicleSpawnerMenu()
 			end)
 		end, 'taxi')
 
-	else -- not society vehicles
+	else -- not society vehicles 
 
+	local ele = {}
+	if ( #Config.AuthorizedVehicles >= 1) then
+		ele = Config.AuthorizedVehicles 
+	else
+		ele = {model = nil, label = 'No data'}
+	end
 		ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_spawner', {
 			title    = _U('spawn_veh'),
 			align    = 'top-left',
-			elements = Config.AuthorizedVehicles
+			elements = ele
 		}, function(data, menu)
 			if not ESX.Game.IsSpawnPointClear(Config.Zones.VehicleSpawnPoint.Pos, 5.0) then
 				ESX.ShowNotification(_U('spawnpoint_blocked'))
