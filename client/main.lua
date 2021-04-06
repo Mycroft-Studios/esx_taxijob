@@ -10,7 +10,7 @@ Citizen.CreateThread(function()
 	end
 
 	while ESX.GetPlayerData().job == nil do
-		Citizen.Wait(10)
+		Citizen.Wait(15)
 	end
 
 	ESX.PlayerData = ESX.GetPlayerData()
@@ -119,16 +119,28 @@ function OpenCloakroom()
 			ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin)
 				TriggerEvent('skinchanger:loadSkin', skin)
 			end)
-		elseif data.current.value == 'wear_work' then
+		elseif data.current.uniform then
+			setUniform(data.current.uniform, playerPed)
+		elseif data.current.value == 'freemode_ped' then
+			local modelHash
+
 			ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin, jobSkin)
 				if skin.sex == 0 then
-					TriggerEvent('skinchanger:loadClothes', skin, jobSkin.skin_male)
+					modelHash = GetHashKey(data.current.maleModel)
 				else
-					TriggerEvent('skinchanger:loadClothes', skin, jobSkin.skin_female)
+					modelHash = GetHashKey(data.current.femaleModel)
 				end
+
+				ESX.Streaming.RequestModel(modelHash, function()
+					SetPlayerModel(PlayerId(), modelHash)
+					SetModelAsNoLongerNeeded(modelHash)
+					SetPedDefaultComponentVariation(PlayerPedId())
+
+					TriggerEvent('esx:restoreLoadout')
+				end)
 			end)
 		end
-	end, function(data, menu)
+end, function(data, menu)
 		menu.close()
 
 		CurrentAction     = 'cloakroom'
